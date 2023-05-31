@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pogoda</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text text-success text-center">Pogoda</h1>
+        <h6 class="text text-success text-center">Dane meteorologiczne</h6>
+        <div class="form-group">
+            <label for="station-select" class="text-success">Wybierz stację:</label>
+            <select id="station-select" class="form-control"></select>
+        </div>
+        <div id="table-container" class="mt-3"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        fetch('./data')
+        .then(res => res.json())
+        .then((out) => {
+            console.log('Output: ', out);
+            var mydata = out;
+            var stationSelect = $('#station-select');
+            var tableContainer = $('#table-container');
+
+            // Populate the station select dropdown
+            mydata.forEach(function (data) {
+                var option = $('<option>', {
+                    value: data.stacja,
+                    text: data.stacja
+                });
+                stationSelect.append(option);
+            });
+
+            // Create and display the table based on selected station
+            stationSelect.on('change', function () {
+                var selectedStation = $(this).val();
+                var filteredData = mydata.filter(function (data) {
+                    return data.stacja === selectedStation;
+                });
+
+                var table = $('<table>', {
+                    class: 'table-striped border-success'
+                });
+
+                var thead = $('<thead>').appendTo(table);
+                var tr = $('<tr>').appendTo(thead);
+
+                var headers = ['Nazwa stacji', 'Temperatura', 'Ciśnienie'];
+
+                headers.forEach(function (header) {
+                    $('<th>').html('<span class="text-success">' + header + '</span>').appendTo(tr);
+                });
+
+                var tbody = $('<tbody>').appendTo(table);
+
+                filteredData.forEach(function (data) {
+                    var row = $('<tr>').appendTo(tbody);
+
+                    $('<td>').text(data.stacja).appendTo(row);
+                    $('<td>').text(data.temperatura).appendTo(row);
+                    $('<td>').text(data.cisnienie).appendTo(row);
+                });
+
+                tableContainer.html(table);
+            });
+        })
+        .catch(err => console.log.error(err));
+    </script>
+</body>
+</html>
+
